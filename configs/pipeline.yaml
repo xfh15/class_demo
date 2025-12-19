@@ -6,7 +6,8 @@ funasr:
   # Only zh/en supported. Set language to auto-pick a model, or override model directly.
   language: zh
   model: paraformer-zh
-  vad_model: fa-vad-onnx
+  # Use FunASR built-in VAD; if VAD 不需要可设为 null
+  vad_model: fsmn-vad
   punc_model: ct-punc
   spk_model: cam++  # optional diarization model
   device: cuda:0  # server has GPU; fallback to cpu if needed
