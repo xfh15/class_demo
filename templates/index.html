@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classroom Verbal Analysis Demo</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="hero">
+    <div class="hero__copy">
+      <p class="pill">FunASR → Gemini</p>
+      <h1>课堂语音分析演示</h1>
+      <p class="lede">上传中文或英文课堂视频，自动转写、说话人分离并生成课堂状态报告。</p>
+      <form class="upload" action="/analyze" method="post" enctype="multipart/form-data">
+        <label class="upload__field">
+          <input type="file" name="video" accept="video/*,audio/*" />
+          <span>上传本地视频/音频</span>
+        </label>
+        <div class="or">或</div>
+        <input class="input" type="url" name="video_url" placeholder="粘贴视频下载地址（http/https）" />
+        <button type="submit">开始分析</button>
+        <p class="hint">默认使用 mock 推理，如已安装 FunASR / 配置 GEMINI_API_KEY 将自动切换真实推理。</p>
+      </form>
+      {% if error %}
+      <div class="error">⚠️ {{ error }}</div>
+      {% endif %}
+    </div>
+    <div class="hero__panel">
+      <div class="card">
+        <p class="card__title">流程</p>
+        <ol>
+          <li>FFmpeg 抽取音频</li>
+          <li>FunASR 转写 + 说话人分离</li>
+          <li>Gemini 语义分析</li>
+          <li>输出报告</li>
+        </ol>
+        <p class="card__foot">全部在本地运行，Gemini 仅上传文本。</p>
+      </div>
+    </div>
+  </div>
+
+  {% if result %}
+  <section class="result">
+    <div class="result__header">
+      <div>
+        <p class="pill pill--dim">分析完成</p>
+        <h2>课堂报告</h2>
+      </div>
+      <a class="ghost" href="{{ result.report_path }}">下载报告</a>
+    </div>
+    <div class="panel">
+      <h3>报告摘要</h3>
+      <div class="markdown">{{ result.report_content | replace("\n", "<br />") | safe }}</div>
+    </div>
+    <div class="panel">
+      <h3>转写片段</h3>
+      <div class="transcript">
+        {% for u in result.utterances %}
+        <div class="utter">
+          <div class="utter__time">[{{ "%.2f"|format(u.start) }} - {{ "%.2f"|format(u.end) }}]</div>
+          <div class="utter__body">
+            <div class="utter__spk">{{ u.speaker }}</div>
+            <div class="utter__txt">{{ u.text }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</body>
+</html>

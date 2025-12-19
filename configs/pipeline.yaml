@@ -1,0 +1,21 @@
+ffmpeg:
+  sample_rate: 16000
+  channels: 1
+
+funasr:
+  # Only zh/en supported. Set language to auto-pick a model, or override model directly.
+  language: zh
+  model: paraformer-zh
+  vad_model: fa-vad-onnx
+  punc_model: ct-punc
+  spk_model: cam++  # optional diarization model
+  device: cuda:0  # server has GPU; fallback to cpu if needed
+  use_mock: true   # set false when FunASR is installed
+
+gemini:
+  enabled: false   # set true when GEMINI_API_KEY is available
+  model: gemini-pro
+  prompt_path: prompts/gemini_prompt.md
+
+output:
+  workdir: artifacts
