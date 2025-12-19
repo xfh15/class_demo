@@ -10,10 +10,10 @@ funasr:
   punc_model: ct-punc
   spk_model: cam++  # optional diarization model
   device: cuda:0  # server has GPU; fallback to cpu if needed
-  use_mock: true   # set false when FunASR is installed
+  use_mock: false   # set true only for本地调试；已安装 FunASR 时请保持 false
 
 gemini:
-  enabled: false   # set true when GEMINI_API_KEY is available
+  enabled: true   # set true when GEMINI_API_KEY is available
   model: gemini-pro
   prompt_path: prompts/gemini_prompt.md
 

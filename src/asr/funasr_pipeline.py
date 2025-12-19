@@ -21,7 +21,7 @@ class Utterance:
 class FunASRPipeline:
     """
     Thin wrapper around FunASR for ASR + diarization.
-    Falls back to a mock result when FunASR is unavailable.
+    Falls back to a mock result only when explicitly requested.
     """
 
     def __init__(self, cfg: Dict[str, Any]):
@@ -31,7 +31,11 @@ class FunASRPipeline:
         self.punc_model = cfg.get("punc_model")
         self.spk_model = cfg.get("spk_model")
         self.device = cfg.get("device", "cpu")
-        self.use_mock = cfg.get("use_mock", False) or AutoModel is None
+        self.user_wants_mock = cfg.get("use_mock", False)
+        self.auto_model_available = AutoModel is not None
+        if not self.user_wants_mock and not self.auto_model_available:
+            raise RuntimeError("FunASR AutoModel unavailable. Install funasr and deps or set use_mock=true.")
+        self.use_mock = self.user_wants_mock
         self.hotword = cfg.get("hotword")
         self._model = None
 
