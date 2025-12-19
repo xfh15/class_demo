@@ -17,12 +17,12 @@
       <p class="lede">上传中文或英文课堂视频，自动转写、说话人分离并生成课堂状态报告。</p>
       <form class="upload" action="/analyze" method="post" enctype="multipart/form-data">
         <label class="upload__field">
-          <input type="file" name="video" accept="video/*,audio/*" />
-          <span>上传本地视频/音频</span>
+          <input id="file-input" type="file" name="video" accept="video/*,audio/*" />
+          <span id="file-label">上传本地视频/音频</span>
         </label>
         <div class="or">或</div>
         <input class="input" type="url" name="video_url" placeholder="粘贴视频下载地址（http/https）" />
-        <button type="submit">开始分析</button>
+        <button id="submit-btn" type="submit">开始分析</button>
         <p class="hint">默认使用 mock 推理，如已安装 FunASR / 配置 GEMINI_API_KEY 将自动切换真实推理。</p>
       </form>
       {% if error %}
@@ -57,6 +57,22 @@
       <div class="markdown">{{ result.report_content | replace("\n", "<br />") | safe }}</div>
     </div>
     <div class="panel">
+      <h3>处理进度</h3>
+      <div class="steps">
+        {% for s in result.steps %}
+        <div class="step">
+          <div class="step__name">{{ s.name }}</div>
+          <div class="step__meta">
+            <span class="pill pill--dim">{{ s.duration }}s</span>
+            {% if s.mode %}
+            <span class="pill pill--dim">{{ s.mode }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="panel">
       <h3>转写片段</h3>
       <div class="transcript">
         {% for u in result.utterances %}
@@ -72,5 +88,30 @@
     </div>
   </section>
   {% endif %}
+  <div id="overlay">
+    <div class="spinner"></div>
+    <p>正在上传/分析，请稍候...</p>
+  </div>
+  <script>
+    const fileInput = document.getElementById('file-input');
+    const fileLabel = document.getElementById('file-label');
+    const form = document.querySelector('.upload');
+    const overlay = document.getElementById('overlay');
+    const submitBtn = document.getElementById('submit-btn');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        const name = e.target.files?.[0]?.name;
+        if (name) fileLabel.textContent = `已选择：${name}`;
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', () => {
+        overlay.classList.add('show');
+        submitBtn.disabled = true;
+      });
+    }
+  </script>
 </body>
 </html>

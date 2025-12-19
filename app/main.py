@@ -1,4 +1,6 @@
 import uuid
+import time
+import sys
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -9,6 +11,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT / "src"))
+
 from ingest.audio_extractor import extract_audio
 from ingest.downloader import download_video
 from asr.funasr_pipeline import FunASRPipeline
@@ -16,7 +21,6 @@ from analysis.gemini_client import GeminiClient
 from report.report_builder import build_report
 
 
-ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CFG = ROOT / "configs" / "pipeline.yaml"
 load_dotenv(ROOT / ".env")
 app = FastAPI(title="Classroom Verbal Analysis Demo")
@@ -35,13 +39,33 @@ def run_pipeline(video_path: Path, cfg: Dict[str, Any], session_dir: Path) -> Di
     transcript_path = session_dir / "transcript.json"
     report_path = session_dir / "report.md"
 
+    steps: List[Dict[str, Any]] = []
+
+    t0 = time.perf_counter()
     extract_audio(video_path, audio_path, sample_rate=cfg["ffmpeg"]["sample_rate"], channels=cfg["ffmpeg"]["channels"])
+    steps.append({"name": "抽取音频", "duration": round(time.perf_counter() - t0, 2)})
 
     asr = FunASRPipeline(cfg.get("funasr", {}))
+    t1 = time.perf_counter()
     utterances = asr.transcribe(audio_path)
+    steps.append(
+        {
+            "name": "语音转写/分离 (FunASR)",
+            "duration": round(time.perf_counter() - t1, 2),
+            "mode": "mock" if asr.use_mock else "real",
+        }
+    )
 
     gemini = GeminiClient(cfg.get("gemini", {}))
+    t2 = time.perf_counter()
     analysis = gemini.analyze([u.__dict__ for u in utterances])
+    steps.append(
+        {
+            "name": "语义分析 (Gemini)",
+            "duration": round(time.perf_counter() - t2, 2),
+            "mode": "enabled" if gemini.enabled else "mock",
+        }
+    )
 
     report_content = build_report([u.__dict__ for u in utterances], analysis)
     report_path.write_text(report_content, encoding="utf-8")
@@ -53,6 +77,11 @@ def run_pipeline(video_path: Path, cfg: Dict[str, Any], session_dir: Path) -> Di
         "report_content": report_content,
         "audio_path": audio_path,
         "transcript_path": transcript_path,
+        "steps": steps,
+        "modes": {
+            "asr": "mock" if asr.use_mock else "real",
+            "gemini": "enabled" if gemini.enabled else "mock",
+        },
     }
 
 
