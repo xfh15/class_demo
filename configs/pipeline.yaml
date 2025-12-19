@@ -3,10 +3,9 @@ ffmpeg:
   channels: 1
 
 funasr:
-  # Only zh/en supported. Set language to auto-pick a model, or override model directly.
-  language: zh
-  model: paraformer-zh
-  # Use FunASR built-in VAD; if VAD 不需要可设为 null
+  # SenseVoiceSmall 支持中英/混说；language 可留空或设 zh/en 但不再决定模型。
+  language: zh/en
+  model: iic/SenseVoiceSmall
   vad_model: fsmn-vad
   punc_model: ct-punc
   spk_model: cam++  # optional diarization model
