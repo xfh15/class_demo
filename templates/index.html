@@ -12,7 +12,9 @@
 <body>
   <div class="hero">
     <div class="hero__copy">
-      <p class="pill">FunASR → Gemini</p>
+      <p class="pill">
+        <!-- FunASR → Gemini -->
+      </p>
       <h1>课堂语音分析演示</h1>
       <p class="lede">上传中文或英文课堂视频，自动转写、说话人分离并生成课堂状态报告。</p>
       <form class="upload" action="/analyze" method="post" enctype="multipart/form-data">
@@ -23,7 +25,9 @@
         <div class="or">或</div>
         <input class="input" type="url" name="video_url" placeholder="粘贴视频下载地址（http/https）" />
         <button id="submit-btn" type="submit">开始分析</button>
-        <p class="hint">默认使用 mock 推理，如已安装 FunASR / 配置 GEMINI_API_KEY 将自动切换真实推理。</p>
+        <p class="hint">
+        <!-- 默认使用 mock 推理，如已安装 FunASR / 配置 GEMINI_API_KEY 将自动切换真实推理。-->
+        </p>
       </form>
       {% if error %}
       <div class="error">⚠️ {{ error }}</div>
@@ -33,12 +37,14 @@
       <div class="card">
         <p class="card__title">流程</p>
         <ol>
+          <!-- 
           <li>FFmpeg 抽取音频</li>
           <li>FunASR 转写 + 说话人分离</li>
           <li>Gemini 语义分析</li>
           <li>输出报告</li>
+          -->
         </ol>
-        <p class="card__foot">全部在本地运行，Gemini 仅上传文本。</p>
+        <p class="card__foot">全部在本地运行</p>
       </div>
     </div>
   </div>
@@ -72,6 +78,7 @@
         {% endfor %}
       </div>
     </div>
+    <!-- 
     <div class="panel">
       <h3>转写片段</h3>
       <div class="transcript">
@@ -86,6 +93,7 @@
         {% endfor %}
       </div>
     </div>
+    -->
   </section>
   {% endif %}
   <div id="overlay">

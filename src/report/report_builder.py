@@ -9,12 +9,12 @@ def build_report(utterances: List[Dict[str, Any]], analysis: Dict[str, Any]) -> 
         "## 概要",
         analysis.get("report", "未启用 Gemini，显示占位报告。"),
         "",
-        "## 转写片段（含说话人分离）",
+      #  "## 转写片段（含说话人分离）",
     ]
-    for u in utterances:
-        lines.append(
-            f"- [{u['start']:.2f}-{u['end']:.2f}] {u['speaker']}: {u['text']}"
-        )
+    #for u in utterances:
+    #    lines.append(
+    #        f"- [{u['start']:.2f}-{u['end']:.2f}] {u['speaker']}: {u['text']}"
+    #    )
     return "\n".join(lines)
 
 
